@@ -89,12 +89,12 @@ class ClassDataList:
         self.reg = ""
         self.zb = ""
 
-    # def __init__(self, db, exp, reg, zb):
-    #     self.data = []
-    #     self.db = db
-    #     self.exp = exp
-    #     self.reg = reg
-    #     self.zb = zb
+    def print(self):
+        print("指标：" + self.zb + "；所属栏目：" + self.db + "；地区：" + self.reg, end="；")
+        for i in range(len(self.data)):
+            print("第" + str(i + 1) + "个数据：", end="")
+            self.data[i].print()
+        print("；备注：" + self.exp)
 
 
 class ClassData:
@@ -105,26 +105,53 @@ class ClassData:
         self.report = report
         self.sj = sj
 
+    def print(self):
+        print("时间：" + self.sj + "；数值：" + self.data, end="；")
 
-def get_class_data_list(data_list):
+
+def get_class_data_lists(data_list):
     # 返回的是一个二维数组，第一维是不同指标的数据，每个都是一个ClassDataList对象
     # 第二维是相同指标所有数据，指ClassDataList的data属性包含一个ClassData对象组
     # 准备一个保存指标标签的数组
     label = []
     # 保存数据的数组
-    result = []
+    class_data_lists = []
     for item in data_list:
         # 先判断数据是否为空，若空则直接跳过
         if item["data"].strip('') == "":
             continue
         # 先判断指标数据是否已经存在
         zb = item["zb"]
-        index = label.index(zb)
-        # 如果存在则将ClassData保存到ClassDataList中
-        if index > -1:
-            data = ClassData(item["data"], item["prank"], item["rank"], item["report"], item["sj"])
-            result[index].data.append(data)
-        class_data_list.db = item["db"]
-        class_data_list.reg = item["reg"]
-        class_data_list.exp = item["exp"]
-        class_data_list.zb = item["zb"]
+        try:
+            # 如果存在则将ClassData保存到ClassDataList中
+            index = label.index(zb)
+        # 如果不存在就新建一个ClassDataList存到result中再存数据
+        except ValueError:
+            class_data_list = ClassDataList()
+            class_data_list.db = item["db"]
+            class_data_list.reg = item["reg"]
+            class_data_list.exp = item["exp"]
+            class_data_list.zb = item["zb"]
+            class_data_lists.append(class_data_list)
+            # 将db存入标签数组中
+            label.append(class_data_list.zb)
+            # 设置添加数据位置
+            index = len(label) - 1
+        data = ClassData(item["data"], item["prank"], item["rank"], item["report"], item["sj"])
+        class_data_lists[index].data.append(data)
+    return class_data_lists
+
+
+# 打印数据所有指标
+def print_class_data_lists_zb(class_data_lists):
+    zb_list = []
+    try:
+        for i in range(len(class_data_lists)):
+            print(str(i + 1) + "." + class_data_lists[i].zb, end=" ")
+            zb_list.append(class_data_lists[i].zb)
+        print()
+    except AttributeError:
+        # for i in range(len(class_data_lists)):
+        #     print(class_data_lists[i])
+        print("zb数据不存在")
+    return zb_list
