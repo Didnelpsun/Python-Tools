@@ -155,3 +155,6 @@ def print_class_data_lists_zb(class_data_lists):
         #     print(class_data_lists[i])
         print("zb数据不存在")
     return zb_list
+
+if __name__ == '__main__':
+    pass
